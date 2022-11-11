@@ -1,3 +1,2 @@
 # Typosquatting-Module2
-Static Analyzer
-This is a test!
+Ex. python repo_activity.py -r Ruby -p rails -a ohmyzsh
