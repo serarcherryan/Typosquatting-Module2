@@ -18,29 +18,75 @@ headers = {"Authorization": "token" + token}
 #headers={}
 def getRepositoryInfomation(repo_dict):
 	# print(repo_dict)
-	# Author's Name
-	print('\nName:', repo_dict['name'])
-	# Owner's Name
-	print('Owner:', repo_dict['owner']['login'])
-	# Stars
-	print('Stars:', repo_dict['stargazers_count'])
-	# Repository Url
-	print('Repository:', repo_dict['html_url'])
-	# Created at
-	print('Created:', repo_dict['created_at'])
-	# Updated at
-	print('Updated:', repo_dict['updated_at'])
-	# Forks count
-	print("Forks:", repo_dict['forks'])
-	# Issues count
-	print("Issues Count:", repo_dict['open_issues'])
-	# Issues Urls
-	print("Issues Urls:", repo_dict['issues_url'])
 	if type(repo_dict['description']):
 		print('Description: ', 'null')
 	else:
 		# Project description
 		print('Description:', repo_dict['description'])
+	"""Print as required"""
+	print("\n--------- Age ---------\n")
+	# Created at
+	print('Created:', repo_dict['created_at'])
+	# Updated at
+	print('Updated:', repo_dict['updated_at'])
+	print("\n----- Popularity ------\n")
+	# Stars
+	print('Stars:', repo_dict['stargazers_count'])
+	# Forks count
+	print("Forks:", repo_dict['forks'])
+	
+	# Get used by
+	try:
+		url1 = repo_dict['html_url']
+		res1 = req.get(url1)
+		if res1.status_code == 200:
+			data1 = res1.content.decode('utf-8')
+			# Used by
+			used_by = data1.split('<span class="px-2 text-bold text-small no-wrap">')[1].split('+ ')[1].split('\n          </span>')[0]	
+			# Used by
+			print("Used by:", used_by)
+			print("\n---- Maintainance -----\n")	
+		else:
+			print("[ERROR]: Status Code: %d"%res1.status_code)
+		
+	except:
+		print("[ERROR]: Popular Info Requests Error!")
+	
+	# Issues count
+	print("Issues Count:", repo_dict['open_issues'])
+	# Issues Urls
+	print("Issues Urls:", repo_dict['issues_url'])
+	# Get commits
+	print("\n------- Commits -------\n")
+	try:
+		url2 = "https://api.github.com/repos/%s/stats/participation"%str(repo_dict['html_url']).split("github.com/")[1]
+		url3 = "https://api.github.com/repos/%s/stats/commit_activity"%str(repo_dict['html_url']).split("github.com/")[1]
+		res2 = req.get(url2,headers=headers)
+		res3 = req.get(url3,headers=headers)
+		if res2.status_code == 200 and res3.status_code == 200:
+			data2 = res2.json()
+			data3 = res3.json()
+
+			print("Weekly commits:", data2,'\n')
+			print("Yearly commits:", data3,'\n')
+		else:
+			print("[ERROR]: Status Code: %d"%res1.status_code)
+		
+	except:
+		print("[ERROR]: Commits Info Requests Error!")
+	
+	
+	
+	
+	
+	
+	print("\n----- Other Info ------\n")
+	# Author's Name
+	print('\nName:', repo_dict['name'])
+	# Owner's Name
+	print('Owner:', repo_dict['owner']['login'])
+	# Repository Url
+	print('Repository:', repo_dict['html_url'])
 	
 	return str(repo_dict['html_url']).split("github.com/")[1]
 
@@ -54,7 +100,7 @@ def get_github_info_by_link(link):
 			#print("Toal repositories:", response_dict['total_count'])
 			repo_dicts = response_dict['items']
 			#print("Repositories returned:", len(repo_dicts))
-			print("----------------GitHub [First]-----------------")
+			print("\n----------------GitHub Module-----------------")
 			#for repo_dict in repo_dicts:
 				#getRepositoryInfomation(repo_dict)
 			repository_name = getRepositoryInfomation(repo_dicts[0])
@@ -120,7 +166,7 @@ def get_github_info_by_package(package, registry):
 			#print("Toal repositories:", response_dict['total_count'])
 			repo_dicts = response_dict['items']
 			#print("Repositories returned:", len(repo_dicts))
-			print("----------------GitHub [First]-----------------")
+			print("\n----------------GitHub Module[may not be accurate] -----------------")
 			#for repo_dict in repo_dicts:
 				#getRepositoryInfomation(repo_dict)
 			repository_name = getRepositoryInfomation(repo_dicts[0])
@@ -207,6 +253,7 @@ def get_Ruby_info(package):
 			# Home page
 			home_page = data["homepage_uri"]
 			print("Homepage Url:", home_page)
+			
 			# return maintainer's name
 			if link:
 				return link, link.split("github.com/")[1].split("/")[0]
@@ -226,7 +273,7 @@ def get_NPM_info(package):
 			print("\n----------------Registry - NPM-----------------\n")
 			data = res.content.decode('utf-8')
 			# Github link
-			link = data.split('repository-link">')[1].split('</span>')[0]
+			link = "https://"+data.split('repository-link">')[1].split('</span>')[0]
 			print("Github Link: %s"%link)
 			# Author's name  -- [Only the first one]
 			author = data.split('border-radius:4%" alt="')[1].split('" title=')[0]
@@ -238,10 +285,11 @@ def get_NPM_info(package):
 			#docs = data["documentation_uri"]
 			#print("Docs Url:", docs)
 			# Home page
-			home_page = data.split('<span id="homePage-link">')[1].split('</span>')[0]
+			home_page = "https://"+data.split('<span id="homePage-link">')[1].split('</span>')[0]
 			print("Homepage Url:", home_page)
-			# Release [TBD]
-			return link, author
+			
+			# return maintainer's name
+			return link, link.split("github.com/")[1].split("/")[0]
 			
 		else:
 			print("[ERROR]: Status Code: %d"%res.status_code)	
@@ -254,13 +302,14 @@ def get_author_info(author, maintainer, registry):
 		url_github = "https://api.github.com/users/%s" % author
 	else:
 		url_github = "https://api.github.com/users/%s" % maintainer
-	try:https://github.com/caolan/async
-
+	try:
 		res = req.get(url_github, headers=headers)
 		print("\n----------------Author: Search Github...-----------------\n")
 		if res.status_code == 200:
 			res = res.json()
-			print("Author:", author)
+			print("--------- Age ---------\n")
+			real_name = res["name"]
+			print("Author's real name:",real_name)
 			# date
 			created_time = res["created_at"]
 			updated_time = res["updated_at"]
@@ -268,23 +317,45 @@ def get_author_info(author, maintainer, registry):
 			print("Update date",updated_time)
 			
 			# bio
-			print("\n------Author's Bio------\n")
 			real_name = res["name"]
-			company = res["company"]
 			blog = res["blog"]
 			email = res["email"]
 			bio = res["bio"]
 			twitter = res["twitter_username"]
 			followers = res["followers"]
 			repos_num = res["public_repos"]
-			print("Author's real name:",real_name)
-			print("Author's company:",company)
+			# print as required
+			print("\n-----Social Media------\n")
 			print("Author's blog:",blog)
 			print("Author's email:",email)
 			print("Author's bio:",bio)
 			print("Author's twitter:",twitter)
 			print("Author's followers:",followers)
+			
+			# activity
+			print("\n--------Activity-------\n")
+			company = res["company"]
+			print("Author's orgnization:",company)
 			print("Number of repositories:",repos_num)
+			# achievements
+			try:
+				if author:
+					url_badge = "https://github.com/%s?tab=achievements"%author
+				else:
+					url_badge = "https://github.com/%s?tab=achievements"%maintainer
+				res2 = req.get(url_badge, headers=headers)
+				if res2.status_code == 200:
+					data2 = res2.content.decode('utf-8')
+					badge_num = data2.count('achievement-badge-card')
+					print("Author's badges:", badge_num)
+					
+				else:
+					print("[ERROR]: Status Code: %d"%res2.status_code)
+			
+			except:
+				print("[ERROR]: Author Info Requests Error!")
+			
+			
 		elif res.status_code == 404:
 			print("No such user!")
 		else:
@@ -351,10 +422,8 @@ if __name__ == '__main__':
 	if package and registry == 'NPM':
 		link ,maintainer = get_NPM_info(package)
 	if link and package and registry:
-		print("----------Github Link Found-----------")
 		get_github_info_by_link(link)
 	elif package and registry:
-		print("---------No Github Link----------")
 		get_github_info_by_package(package, registry)
 	
 	get_author_info(owner, maintainer, registry)
