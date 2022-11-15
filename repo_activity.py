@@ -13,9 +13,7 @@ args = parser.parse_args()
 
 if len(sys.argv) < 5:
 	print("More arguments required!")
-#token = "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"
 token = "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"
-token 
 headers = {"Authorization": "token" + token}	
 #headers={}
 def getRepositoryInfomation(repo_dict):
