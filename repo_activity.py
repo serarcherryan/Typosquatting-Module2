@@ -30,6 +30,8 @@ class Scoring:
 	""" Author """
 	# Author's age
 	def author_age(self):
+		if not self.author:
+			return 0
 		updated = parse(self.author['updated'])
 		created = parse(self.author['created'])
 		# half year
@@ -46,6 +48,8 @@ class Scoring:
 	
 	# Author's social media
 	def author_social_media(self):
+		if not self.author:
+			return 0
 		followers = self.author['followers']
 		blog = self.author['blog']
 		twitter = self.author['twitter']
@@ -75,6 +79,9 @@ class Scoring:
 	
 	# Author's achievements
 	def author_achievements(self):
+		if not self.author:
+			return 0
+	
 		repos = self.author['repos']
 		orgnizations = self.author['orgnizations']
 		badge = self.author['badge']
@@ -107,6 +114,8 @@ class Scoring:
 	""" Github """	
 	# Repo's age
 	def github_repo_age(self):
+		if not self.github:
+			return 0
 		updated = parse(self.github['updated'])
 		created = parse(self.github['created'])
 		# half year
@@ -123,6 +132,8 @@ class Scoring:
 		
 	# Popularity
 	def github_popularity(self):
+		if not self.github:
+			return 0
 		stars = self.github['stars']
 		forks = self.github['forks']
 		used_by = self.github['used_by']
@@ -154,6 +165,8 @@ class Scoring:
 		
 	# Maintenance
 	def github_maintenance(self):
+		if not self.github:
+			return 0
 		releases = self.github['releases']
 		contributors = self.github['contributors']
 		issues = self.github['issues']
@@ -188,8 +201,13 @@ class Scoring:
 	""" Registry """	
 	# Downloads
 	def registry_downloads(self):
-		downloads = int(self.registry['downloads'].replace(',',''))
+		if not self.registry:
+			return 0
+		downloads = self.registry['downloads']
 		reg = self.registry['registry']
+		if reg == "NPM":
+			downloads = int(downloads.replace(',',''))
+		downloads = int(downloads)
 		if reg == 'Ruby' :
 			if downloads > 1000:
 				return 10
@@ -357,6 +375,7 @@ def get_github_info_by_link(link):
 		
 	except:
 		print("[ERROR]: Repositories Basic Info Requests Error!")
+	return {}
 
 	# closed PRs -- First page -- minimum of 2 approved commits
 	"""
@@ -438,7 +457,7 @@ def get_PyPI_info(package):
 			link = data["info"]["project_url"]
 			if data["info"]["project_urls"]:
 				for val in data["info"]["project_urls"].values():
-					if "github" in val:
+					if "github" in val and val.count('/')==4:
 						link = val
 						print("Github Link: %s"%link)
 						flag = True
@@ -662,6 +681,7 @@ def get_author_info(author, maintainer, registry):
 		
 	except:
 		print("[ERROR]: Author Info Requests Error!")
+	return {}
 	
 	if registry == "PyPI":
 		url_pypi = "https://pypi.org/user/%s" % maintainer
