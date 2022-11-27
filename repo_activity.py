@@ -16,8 +16,9 @@ args = parser.parse_args()
 
 if len(sys.argv) < 5:
 	print("More arguments required!")
-token = "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"
-headers = {"Authorization": "token" + token}	
+#token = "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"
+token = "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"
+headers = {"Authorization": "token" + token}
 #headers={}
 
 
@@ -260,9 +261,15 @@ def getRepositoryInfomation(repo_dict):
 			data1 = res1.content.decode('utf-8')
 			# Used by
 			try:
-				used_by = data1.split('<span class="px-2 text-bold text-small no-wrap">')[1].split('+ ')[1].split('\n          </span>')[0]	
+				#print(data1)
+				#print(data1)
+				print("hi im here")
+				used_by = data1.split('<span class="px-2 text-bold text-small no-wrap">')[1].split('+ ')[1].split('\n          </span>')[0]
+				#print(used_by)
+				#print("This is data split"+data1.split('<span class="px-2 text-bold text-small no-wrap">')[1].split('+ ')[1].split('\n          </span>')[0])
 			except:
-				used_by = None
+				#print(data1)
+				used_by = data1.split('<span class="px-2 text-bold text-small no-wrap">')[1].split('+ ')[1].split('\n          </span>')[0]
 			store["used_by"] = used_by
 			# Used by
 			print("Used by:", used_by)
@@ -355,7 +362,7 @@ def getRepositoryInfomation(repo_dict):
 	return str(repo_dict['html_url']).split("github.com/")[1], store
 
 def get_github_info_by_link(link):
-	rep = link.split('github.com/')[1]
+	rep = link.split("github.com/")[1].split("/")[0]+"/"+link.split("github.com/")[1].split("/")[1]
 	url1 = "https://api.github.com/search/repositories?q=%s"%rep
 	try:
 		res1 = req.get(url1, headers=headers)
@@ -435,13 +442,14 @@ def get_github_info_by_package(package, registry):
 			#for repo_dict in repo_dicts:
 				#getRepositoryInfomation(repo_dict)
 			repository_name, store = getRepositoryInfomation(repo_dicts[0])
+			return store
 						
 		else:
 			print("[ERROR]: Status Code: %d"%res1.status_code)
 		
 	except:
 		print("[ERROR]: Repositories Basic Info Requests Error!")
-		
+	return {}
 		
 def get_PyPI_info(package):
 	#if flag == true, there is a github link
@@ -518,7 +526,7 @@ def get_Ruby_info(package):
 			print("Author's name:",author)
 			# Number of downloads
 			downloads = data["downloads"]
-			print("Number of downloads in this version:",version_downloads)
+			print("Number of downloads in this version:",downloads)
 			# Official Docs
 			docs = data["documentation_uri"]
 			print("Docs Url:", docs)
@@ -744,6 +752,7 @@ if __name__ == '__main__':
 		link, author, maintainer, flag, registry_store = get_PyPI_info(package)
 	if package and registry == 'Ruby':
 		link, maintainer, registry_store = get_Ruby_info(package)
+		#link = "https://github.com/flyerhzm/rails_best_practices"
 	if package and registry == 'NPM':
 		link ,maintainer, registry_store = get_NPM_info(package)
 	if link and package and registry:
@@ -751,8 +760,8 @@ if __name__ == '__main__':
 		github_store = get_github_info_by_link(link)
 		print(github_store)
 	elif package and registry:
-		get_github_info_by_package(package, registry)
-	
+		github_store = get_github_info_by_package(package, registry)
+		print(github_store)
 	# author store
 	author_store = get_author_info(owner, maintainer, registry)
 	print("Author store:", author_store)
