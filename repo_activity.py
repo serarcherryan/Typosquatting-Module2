@@ -41,7 +41,7 @@ class Scoring:
 		
 		if (updated - half_year).days < 0:
 			return 0
-		elif (updated - half_year).days > 0 and (updated - two_year).days < 0:
+		elif (updated - half_year).days >= 0 and (updated - two_year).days < 0:
 			return 5
 		else:
 			return 10
@@ -229,7 +229,7 @@ class Scoring:
 		registry_score = self.registry_downloads()
 		
 		total_score = author_score * 0.5 + github_score * 0.4 + registry_score * 0.1
-		return total_score
+		return total_score, author_score, github_score, registry_score
 
 def getRepositoryInfomation(repo_dict):
 	# initialize the score dict
@@ -675,13 +675,18 @@ def get_author_info(author, maintainer, registry):
 				
 			
 		elif res.status_code == 404:
+			
 			print("No such user!")
+			return {}
 		else:
+			
 			print("[ERROR]: Status Code: %d"%res.status_code)
+			return {}
 		
 	except:
+		
 		print("[ERROR]: Author Info Requests Error!")
-	return {}
+		return {}
 	
 	if registry == "PyPI":
 		url_pypi = "https://pypi.org/user/%s" % maintainer
@@ -750,15 +755,19 @@ if __name__ == '__main__':
 	
 	# author store
 	author_store = get_author_info(owner, maintainer, registry)
+	print("Author store:", author_store)
 	# print(author_store)
 	# print(registry_store)
 	
 	obj = Scoring(author_store, registry_store, github_store)
 	
 	print("\n----------------- Score ------------------\n")
-	print(obj.total_score())
+	total, author_score, github_score, registry_score = obj.total_score()
 	
-	
+	print("Author score:", author_score)
+	print("Github score:", github_score)
+	print("Registry score:", registry_score)
+	print("Total score:", total)
 	
 	
 	
