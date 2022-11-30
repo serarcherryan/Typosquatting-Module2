@@ -16,8 +16,8 @@ args = parser.parse_args()
 
 if len(sys.argv) < 5:
 	print("More arguments required!")
-#token = "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"
-token = "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"
+token = "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"
+#token = "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"
 headers = {"Authorization": "token" + token}
 #headers={}
 
@@ -269,7 +269,7 @@ def getRepositoryInfomation(repo_dict):
 				#print("This is data split"+data1.split('<span class="px-2 text-bold text-small no-wrap">')[1].split('+ ')[1].split('\n          </span>')[0])
 			except:
 				#print(data1)
-				used_by = data1.split('<span class="px-2 text-bold text-small no-wrap">')[1].split('+ ')[1].split('\n          </span>')[0]
+				used_by = None
 			store["used_by"] = used_by
 			# Used by
 			print("Used by:", used_by)
@@ -362,8 +362,13 @@ def getRepositoryInfomation(repo_dict):
 	return str(repo_dict['html_url']).split("github.com/")[1], store
 
 def get_github_info_by_link(link):
-	rep = link.split("github.com/")[1].split("/")[0]+"/"+link.split("github.com/")[1].split("/")[1]
-	url1 = "https://api.github.com/search/repositories?q=%s"%rep
+	try:
+		#rep = link.split("github.com/")[1]
+		rep = link.split("github.com/")[1].split("/")[0]+"/"+link.split("github.com/")[1].split("/")[1]
+		print(rep)
+		url1 = "https://api.github.com/search/repositories?q=%s"%rep
+	except:
+		return {}
 	try:
 		res1 = req.get(url1, headers=headers)
 		if res1.status_code == 200:
