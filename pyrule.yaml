@@ -1,0 +1,18 @@
+rules:
+  - id: python-hard-checks
+    pattern-either:
+      - pattern: base64.b64encode(...)
+      - pattern: base64.b64decode(...)
+      - pattern: socket
+      - pattern-regex: (/bin/bash)
+      - pattern-regex: \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}
+      - pattern-regex: (/bin/sh)
+      - pattern-regex: (/etc/shadow)
+      - pattern-regex: (/etc/passwd)
+      - pattern-regex: (dev/tcp/)
+      - pattern-inside: $X = [...]
+      - pattern-regex: x\d{2}
+    message: Found suscipious code in this file!
+    languages:
+      - python
+    severity: WARNING
